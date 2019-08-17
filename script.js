@@ -2,6 +2,7 @@ class Model {
   constructor() {
     // The state of the model, an array of todo objects, stored in localStorage
     const todosStorage = localStorage.getItem("todos");
+
     if (todosStorage) {
       this.todos = JSON.parse(localStorage.getItem("todos"));
     } else {
@@ -145,7 +146,7 @@ class View {
       // Create todo item nodes for each todo in state
       todos.forEach(todo => {
         const li = this.createElement("li");
-        li.id = todo.id;
+        li.setAttribute("data-todo-id", todo.id);
 
         // Each todo item will have a checkbox you can toggle
         const checkbox = this.createElement("input");
@@ -260,7 +261,9 @@ class Controller {
    */
   handleDeleteTodo = event => {
     if (event.target.className === "delete") {
-      const id = parseInt(event.target.parentElement.id);
+      const id = parseInt(
+        event.target.parentElement.getAttribute("data-todo-id")
+      );
       this.model.deleteTodo(id);
     }
   };
@@ -272,7 +275,9 @@ class Controller {
    */
   handleToggle = event => {
     if (event.target.type === "checkbox") {
-      const id = parseInt(event.target.parentElement.id);
+      const id = parseInt(
+        event.target.parentElement.getAttribute("data-todo-id")
+      );
 
       this.model.toggleTodo(id);
     }
