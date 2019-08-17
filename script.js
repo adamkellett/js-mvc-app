@@ -3,8 +3,12 @@ class Model {
     // The state of the model, an array of todo objects, prepopulated with some data
     this.todos = [
       { id: 1, text: "Run a marathon", complete: false },
-      { id: 1, text: "Plant a garden", complete: false }
+      { id: 2, text: "Plant a garden", complete: false }
     ];
+  }
+
+  bindEvents(controller) {
+    this.onTodoListChanged = controller.onTodoListChanged;
   }
 
   /**
@@ -15,6 +19,8 @@ class Model {
    */
   addTodo(todo) {
     this.todos = [...this.todos, todo];
+
+    this.onTodoListChanged(this.todos);
   }
 
   /**
@@ -30,6 +36,8 @@ class Model {
         ? { id: todo.id, text: updatedText, complete: todo.complete }
         : todo
     );
+
+    this.onTodoListChanged(this.todos);
   }
 
   /**
@@ -40,6 +48,8 @@ class Model {
    */
   deleteTodo(id) {
     this.todos = this.todos.filter(todo => todo.id !== id);
+
+    this.onTodoListChanged(this.todos);
   }
 
   /**
@@ -54,6 +64,8 @@ class Model {
         ? { id: todo.id, text: todo.text, complete: !todo.complete }
         : todo
     );
+
+    this.onTodoListChanged(this.todos);
   }
 }
 
@@ -85,6 +97,12 @@ class View {
 
     // Append the title, form, and todo list to the app
     this.app.append(this.title, this.form, this.todoList);
+  }
+
+  bindEvents(controller) {
+    this.form.addEventListener("submit", controller.handleAddTodo);
+    this.todoList.addEventListener("click", controller.handleDeleteTodo);
+    this.todoList.addEventListener("change", controller.handleToggle);
   }
 
   /**
@@ -187,7 +205,72 @@ class Controller {
   constructor(model, view) {
     this.model = model;
     this.view = view;
+
+    this.model.bindEvents(this);
+    this.view.bindEvents(this);
+
+    // Display initial todos
+    this.onTodoListChanged(this.model.todos);
   }
+
+  /**
+   * Initilises the todo list when changed
+   *
+   * @memberof Controller
+   */
+  onTodoListChanged = todos => {
+    this.view.displayTodos(todos);
+  };
+
+  /**
+   * Handle submit event for adding a todo
+   *
+   * @memberof Controller
+   */
+  handleAddTodo = event => {
+    event.preventDefault();
+
+    if (this.view.todoText) {
+      const nextTodoId =
+        this.model.todos.length > 0
+          ? this.model.todos[this.model.todos.length - 1].id + 1
+          : 1;
+
+      const todo = {
+        id: nextTodoId,
+        text: this.view.todoText,
+        complete: false
+      };
+
+      this.model.addTodo(todo);
+      this.view.resetInput();
+    }
+  };
+
+  /**
+   * Handle click event for deleting a todo
+   *
+   * @memberof Controller
+   */
+  handleDeleteTodo = event => {
+    if (event.target.className === "delete") {
+      const id = parseInt(event.target.parentElement.id);
+      this.model.deleteTodo(id);
+    }
+  };
+
+  /**
+   * Handle change event for toggling a todo
+   *
+   * @memberof Controller
+   */
+  handleToggle = event => {
+    if (event.target.type === "checkbox") {
+      const id = parseInt(event.target.parentElement.id);
+
+      this.model.toggleTodo(id);
+    }
+  };
 }
 
 const app = new Controller(new Model(), new View());
