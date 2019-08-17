@@ -15,6 +15,7 @@ class Model {
 
   update() {
     localStorage.setItem("todos", JSON.stringify(this.todos));
+    this.onTodoListChanged(this.todos);
   }
 
   /**
@@ -26,8 +27,6 @@ class Model {
   addTodo(todo) {
     this.todos = [...this.todos, todo];
     this.update();
-
-    this.onTodoListChanged(this.todos);
   }
 
   /**
@@ -43,9 +42,8 @@ class Model {
         ? { id: todo.id, text: updatedText, complete: todo.complete }
         : todo
     );
-    this.update();
 
-    this.onTodoListChanged(this.todos);
+    this.update();
   }
 
   /**
@@ -56,9 +54,8 @@ class Model {
    */
   deleteTodo(id) {
     this.todos = this.todos.filter(todo => todo.id !== id);
-    this.update();
 
-    this.onTodoListChanged(this.todos);
+    this.update();
   }
 
   /**
@@ -73,9 +70,8 @@ class Model {
         ? { id: todo.id, text: todo.text, complete: !todo.complete }
         : todo
     );
-    this.update();
 
-    this.onTodoListChanged(this.todos);
+    this.update();
   }
 }
 
