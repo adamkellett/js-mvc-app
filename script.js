@@ -26,6 +26,15 @@ class Model {
    * @memberof Model
    */
   addTodo(todo) {
+    const nextTodoId =
+      this.todos.length > 0 ? this.todos[this.todos.length - 1].id + 1 : 1;
+
+    todo = {
+      id: nextTodoId,
+      ...todo,
+      complete: false
+    };
+
     this.todos = [...this.todos, todo];
     this.update();
   }
@@ -238,18 +247,7 @@ class Controller {
     event.preventDefault();
 
     if (this.view.todoText) {
-      const nextTodoId =
-        this.model.todos.length > 0
-          ? this.model.todos[this.model.todos.length - 1].id + 1
-          : 1;
-
-      const todo = {
-        id: nextTodoId,
-        text: this.view.todoText,
-        complete: false
-      };
-
-      this.model.addTodo(todo);
+      this.model.addTodo({ text: this.view.todoText });
       this.view.resetInput();
     }
   };
