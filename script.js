@@ -1,14 +1,20 @@
 class Model {
   constructor() {
-    // The state of the model, an array of todo objects, prepopulated with some data
-    this.todos = [
-      { id: 1, text: "Run a marathon", complete: false },
-      { id: 2, text: "Plant a garden", complete: false }
-    ];
+    // The state of the model, an array of todo objects, stored in localStorage
+    const todosStorage = localStorage.getItem("todos");
+    if (todosStorage) {
+      this.todos = JSON.parse(localStorage.getItem("todos"));
+    } else {
+      this.todos = [];
+    }
   }
 
   bindEvents(controller) {
     this.onTodoListChanged = controller.onTodoListChanged;
+  }
+
+  update() {
+    localStorage.setItem("todos", JSON.stringify(this.todos));
   }
 
   /**
@@ -19,6 +25,7 @@ class Model {
    */
   addTodo(todo) {
     this.todos = [...this.todos, todo];
+    this.update();
 
     this.onTodoListChanged(this.todos);
   }
@@ -36,6 +43,7 @@ class Model {
         ? { id: todo.id, text: updatedText, complete: todo.complete }
         : todo
     );
+    this.update();
 
     this.onTodoListChanged(this.todos);
   }
@@ -48,6 +56,7 @@ class Model {
    */
   deleteTodo(id) {
     this.todos = this.todos.filter(todo => todo.id !== id);
+    this.update();
 
     this.onTodoListChanged(this.todos);
   }
@@ -64,6 +73,7 @@ class Model {
         ? { id: todo.id, text: todo.text, complete: !todo.complete }
         : todo
     );
+    this.update();
 
     this.onTodoListChanged(this.todos);
   }
